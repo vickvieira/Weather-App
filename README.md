@@ -1,1 +1,0 @@
-Trabalho de Desenvolvimento Mobile - Aplicativo de previsão do tempo feito com ReactNative
