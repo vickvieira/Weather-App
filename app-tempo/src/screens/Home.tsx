@@ -29,14 +29,13 @@ const Home = () => {
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
-    //para fazer o fetch dos dados da api assim que o componente for rodado
     if (location) {
       fetchWeather();
     }
   }, [location]); //faz o fetch apenas quando a localização muda
 
   useEffect(() => {
-    //para pegar a localização do dispositivo
+    //para pegar a localização do dispositivo do usuário
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
