@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ImageBackground,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -15,6 +16,7 @@ import { FlatList } from "react-native-gesture-handler";
 import ForecastItem from "../components/ForecastItem";
 import LottieView from "lottie-react-native";
 import SearchBar from "../components/SearchBar";
+import { Ionicons } from '@expo/vector-icons';
 
 const BASE_URL = `https://api.openweathermap.org/data/2.5`;
 const OPEN_WEATHER_KEY = `a4b36c4a3a87e7ab769ae13ab4b529b9`;
@@ -151,9 +153,14 @@ const Home = () => {
       fetchForecastByCity(city);
   };
 
+  const handleRefresh = () => {
+    getLocation();
+  };
+
   if (!weather) {
     return <ActivityIndicator />;
   }
+  
 
   return (
     <ImageBackground source={{ uri: bgImage }} style={styles.container}>
@@ -164,6 +171,9 @@ const Home = () => {
         }}
       />
         <SearchBar onSearch={handleSearch} />
+        <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
+        <Ionicons name="refresh" size={24} color="white" />
+      </TouchableOpacity>
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         <LottieView
           source={
