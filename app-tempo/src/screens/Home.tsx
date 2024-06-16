@@ -153,10 +153,6 @@ const Home = () => {
       fetchForecastByCity(city);
   };
 
-  const handleRefresh = () => {
-    getLocation();
-  };
-
   if (!weather) {
     return <ActivityIndicator />;
   }
@@ -171,9 +167,6 @@ const Home = () => {
         }}
       />
         <SearchBar onSearch={handleSearch} />
-        <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
-        <Ionicons name="refresh" size={24} color="white" />
-      </TouchableOpacity>
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         <LottieView
           source={
