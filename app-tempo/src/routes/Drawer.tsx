@@ -17,7 +17,7 @@ export default function DrawerComponent() {
   return (
     <NavigationContainer>
       <Drawer.Navigator>
-        <Drawer.Screen name="Home" component={Home}/>
+        <Drawer.Screen options={{ headerShown: false}} name="Home" component={Home}/>
         <Drawer.Screen name="Detalhes" component={Details}/>
         
       </Drawer.Navigator>
