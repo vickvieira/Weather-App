@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   StyleSheet,
   ImageBackground,
+  Alert,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
@@ -13,6 +14,7 @@ import * as Location from "expo-location";
 import { FlatList } from "react-native-gesture-handler";
 import ForecastItem from "../components/ForecastItem";
 import LottieView from "lottie-react-native";
+import SearchBar from "../components/SearchBar";
 
 const BASE_URL = `https://api.openweathermap.org/data/2.5`;
 const OPEN_WEATHER_KEY = `a4b36c4a3a87e7ab769ae13ab4b529b9`;
@@ -65,7 +67,7 @@ const Home = () => {
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
+        setErrorMsg("Permissão para acesso a localização negada");
         return;
       }
 
@@ -101,6 +103,54 @@ const Home = () => {
     setForecast(data.list);
   };
 
+  const fetchWeatherByCity = async (cityName: string) => {
+    try {
+        const results = await fetch(
+          `${BASE_URL}/weather?q=${cityName}&appid=${OPEN_WEATHER_KEY}&units=metric`
+        );
+        const data = await results.json();
+        if (data.cod !== 200) {
+          throw new Error(data.message);
+        }
+        setWeather(data);
+      } catch (error) {
+        if (error instanceof Error) {
+            Alert.alert("Erro", error.message);
+          } else {
+            Alert.alert("Erro", "Ocorreu um erro desconhecido");
+          }
+        }
+      }
+
+      const fetchForecastByCity = async (cityName: string) => {
+        try {
+          const results = await fetch(
+            `${BASE_URL}/forecast?q=${cityName}&appid=${OPEN_WEATHER_KEY}&units=metric`
+          );
+          const data = await results.json();
+          if (data.cod !== "200") {
+            throw new Error(data.message);
+          }
+          setForecast(data.list);
+        } catch (error) {
+          if (error instanceof Error) {
+            Alert.alert("Erro", error.message);
+          } else {
+            Alert.alert("Erro", "Ocorreu um erro desconhecido");
+          }
+        }
+      };
+
+
+  const handleSearch = (city: string) => {
+    if (city.trim() === "") {
+        Alert.alert("Erro", "Por favor digite o nome de uma cidade");
+        return;
+      }
+      fetchWeatherByCity(city);
+      fetchForecastByCity(city);
+  };
+
   if (!weather) {
     return <ActivityIndicator />;
   }
@@ -113,6 +163,7 @@ const Home = () => {
           backgroundColor: "rgba(0, 0, 0, 0.5)",
         }}
       />
+        <SearchBar onSearch={handleSearch} />
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         <LottieView
           source={
@@ -172,4 +223,5 @@ const styles = StyleSheet.create({
     color: "snow",
   },
 });
+
 export default Home;

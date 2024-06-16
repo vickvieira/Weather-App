@@ -1,15 +1,16 @@
 import { View, Text, StyleSheet } from "react-native";
 import { WeatherForecast } from "../screens/Home";
 import dayjs from "dayjs";
+import 'dayjs/locale/pt-br';
 import { BlurView } from 'expo-blur';
-
+dayjs.locale('pt-br');
 const ForecastItem = ({forecast}: {forecast:WeatherForecast}) => {
     return (
         <BlurView intensity={30} style={styles.container}>
             <Text style={styles.temperature}>
                 {Math.round(forecast.main.temp)}°
             </Text>
-            <Text style={styles.date}>{dayjs(forecast.dt * 1000).format('ddd h a')}</Text>
+            <Text style={styles.date}>{dayjs(forecast.dt * 1000).format('ddd HH:mm')}</Text>
         </BlurView>
     );
 };
