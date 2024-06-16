@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  Button,
   ActivityIndicator,
   StyleSheet,
   ImageBackground,
@@ -16,7 +15,8 @@ import { FlatList } from "react-native-gesture-handler";
 import ForecastItem from "../components/ForecastItem";
 import LottieView from "lottie-react-native";
 import SearchBar from "../components/SearchBar";
-import { Ionicons } from '@expo/vector-icons';
+import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import axios from 'axios';
 
 const BASE_URL = `https://api.openweathermap.org/data/2.5`;
 const OPEN_WEATHER_KEY = `a4b36c4a3a87e7ab769ae13ab4b529b9`;
@@ -79,84 +79,132 @@ const Home = () => {
     })();
   }, []);
 
-  const fetchWeather = async () => {
-    if (!location) {
+  useEffect(() => {
+    getLocation();
+  }, []);
+
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      setErrorMsg("Permission to access location was denied");
       return;
     }
-    // console.log("Fetch data");
-    const results = await fetch(
-      `${BASE_URL}/weather?lat=${location.coords.latitude}&lon=${location.coords.longitude}&appid=${OPEN_WEATHER_KEY}&units=metric`
-    );
-    const data = await results.json();
-    console.log(JSON.stringify(data, null, 2));
-    setWeather(data);
-  };
 
-  const fetchForecast = async () => {
-    if (!location) {
-      return;
-    }
-    const numberOfDays = 5;
-    const results = await fetch(
-      `${BASE_URL}/forecast?lat=${location.coords.latitude}&lon=${location.coords.longitude}&appid=${OPEN_WEATHER_KEY}&units=metric`
-    );
-    const data = await results.json();
-    // console.log(JSON.stringify(data, null, 2));
-    setForecast(data.list);
-  };
-
-  const fetchWeatherByCity = async (cityName: string) => {
     try {
-        const results = await fetch(
-          `${BASE_URL}/weather?q=${cityName}&appid=${OPEN_WEATHER_KEY}&units=metric`
-        );
-        const data = await results.json();
-        if (data.cod !== 200) {
-          throw new Error(data.message);
-        }
-        setWeather(data);
-      } catch (error) {
-        if (error instanceof Error) {
-            Alert.alert("Erro", error.message);
-          } else {
-            Alert.alert("Erro", "Ocorreu um erro desconhecido");
-          }
-        }
+      const location = await Location.getCurrentPositionAsync({});
+      console.log("Location: ", location);
+      setLocation(location);
+    } catch (error) {
+      console.error("Error fetching location: ", error);
+      setErrorMsg("Error fetching location");
+    }
+  };
+
+const fetchWeather = async () => {
+    if (!location) {
+      return;
+    }
+  
+    try {
+      const response = await axios.get(`${BASE_URL}/weather`, {
+        params: {
+          lat: location.coords.latitude,
+          lon: location.coords.longitude,
+          appid: OPEN_WEATHER_KEY,
+          units: 'metric',
+        },
+      });
+  
+      setWeather(response.data);
+    } catch (error) {
+      console.error('Error fetching weather data:', error);
+      setErrorMsg('Error fetching weather data');
+    }
+  };
+
+const fetchForecast = async () => {
+    if (!location) {
+      return;
+    }
+  
+    try {
+      const response = await axios.get(`${BASE_URL}/forecast`, {
+        params: {
+          lat: location.coords.latitude,
+          lon: location.coords.longitude,
+          appid: OPEN_WEATHER_KEY,
+          units: 'metric',
+        },
+      });
+  
+      setForecast(response.data.list);
+    } catch (error) {
+      console.error('Error fetching forecast data:', error);
+      setErrorMsg('Error fetching forecast data');
+    }
+  };
+
+const fetchWeatherByCity = async (cityName: string) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/weather`, {
+        params: {
+          q: cityName,
+          appid: OPEN_WEATHER_KEY,
+          units: 'metric',
+        },
+      });
+  
+      setWeather(response.data);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('Error fetching weather data:', error.message);
+        Alert.alert('Erro', 'Erro ao buscar dados de clima');
+      } else {
+        console.error('Error fetching weather data:', error);
+        Alert.alert('Erro', 'Ocorreu um erro desconhecido ao buscar dados de clima');
       }
+    }
+  };
 
-      const fetchForecastByCity = async (cityName: string) => {
-        try {
-          const results = await fetch(
-            `${BASE_URL}/forecast?q=${cityName}&appid=${OPEN_WEATHER_KEY}&units=metric`
-          );
-          const data = await results.json();
-          if (data.cod !== "200") {
-            throw new Error(data.message);
-          }
-          setForecast(data.list);
-        } catch (error) {
-          if (error instanceof Error) {
-            Alert.alert("Erro", error.message);
-          } else {
-            Alert.alert("Erro", "Ocorreu um erro desconhecido");
-          }
-        }
-      };
 
+const fetchForecastByCity = async (cityName: string) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/forecast`, {
+        params: {
+          q: cityName,
+          appid: OPEN_WEATHER_KEY,
+          units: 'metric',
+        },
+      });
+  
+      setForecast(response.data.list);
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        console.error('Error fetching forecast data:', error.message);
+        Alert.alert('Erro', 'Erro ao buscar previsão do tempo');
+      } else {
+        console.error('Error fetching forecast data:', error);
+        Alert.alert('Erro', 'Ocorreu um erro desconhecido ao buscar previsão do tempo');
+      }
+    }
+  };
 
   const handleSearch = (city: string) => {
     if (city.trim() === "") {
-        Alert.alert("Erro", "Por favor digite o nome de uma cidade");
-        return;
-      }
-      fetchWeatherByCity(city);
-      fetchForecastByCity(city);
+      Alert.alert("Erro", "Por favor digite o nome de uma cidade");
+      return;
+    }
+    fetchWeatherByCity(city);
+    fetchForecastByCity(city);
+  };
+
+  const handleRefresh = () => {
+    getLocation();
   };
 
   if (!weather) {
     return <ActivityIndicator />;
   }
-  
 
   return (
     <ImageBackground source={{ uri: bgImage }} style={styles.container}>
@@ -166,7 +214,10 @@ const Home = () => {
           backgroundColor: "rgba(0, 0, 0, 0.5)",
         }}
       />
-        <SearchBar onSearch={handleSearch} />
+      <SearchBar onSearch={handleSearch} />
+      <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
+        <FontAwesome6 name="location-crosshairs" size={24} color="white" />
+      </TouchableOpacity>
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
         <LottieView
           source={
@@ -224,6 +275,17 @@ const styles = StyleSheet.create({
   temp: {
     fontSize: 90,
     color: "snow",
+  },
+  refreshButton: {
+    position: "absolute",
+    top: 40,
+    right: 20,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    padding: 10,
+    borderRadius: 20,
+    marginTop: 70,
+    marginRight: 10,
+    alignContent: "stretch",
   },
 });
 
