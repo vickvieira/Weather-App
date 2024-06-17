@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet } from "react-native";
-import { WeatherForecast } from "../screens/Home";
+import { WeatherForecast } from "../constants/WeatherTypes";
 import dayjs from "dayjs";
 import 'dayjs/locale/pt-br';
 import { BlurView } from 'expo-blur';

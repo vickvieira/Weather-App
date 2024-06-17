@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, TextInput, Button, StyleSheet, TouchableOpacity, Text, Pressable } from "react-native";
+import { View, TextInput, Button, StyleSheet, TouchableOpacity, Text, Pressable, Alert } from "react-native";
 
 interface SearchBarProps {
   onSearch: (city: string) => void;
@@ -9,6 +9,10 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   const [city, setCity] = useState<string>("");
 
   const handleSearch = () => { //desconsidera espaços antes e depois da busca
+    if (city.trim() === "") {
+        Alert.alert("Erro", "Por favor digite o nome de uma cidade");
+        return;
+      }
     const trimmedCity = city.trim();
     onSearch(trimmedCity);
   };
