@@ -1,4 +1,4 @@
-import { View, Text, ActivityIndicator, StyleSheet, ImageBackground, Alert, TouchableOpacity } from "react-native";
+import { View, Text, ActivityIndicator, StyleSheet, ImageBackground, Alert, TouchableOpacity, ImageComponent } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import Drawer, { DrawerTypes } from "../routes/Drawer";
@@ -11,6 +11,7 @@ import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import axios from "axios";
 import { BASE_URL, OPEN_WEATHER_KEY, UNSPLASH_ACCESS_KEY } from "../constants/ApiConstants";
 import { MainWeather, Weather, WeatherForecast } from "../constants/WeatherTypes";
+import DinamicIcon from "../components/DinamicIcon";
 
 
 const Home = () => {
@@ -230,22 +231,11 @@ const Home = () => {
         <FontAwesome6 name="location-crosshairs" size={24} color="white" />
       </TouchableOpacity>
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-        <LottieView
-          source={
-            weather.weather[0].main == "Rain"
-              ? require("../../assets/lottie/rain.json")
-              : require("../../assets/lottie/sunny.json")
-          }
-          style={{
-            width: 200,
-            aspectRatio: 1,
-          }}
-          loop
-          autoPlay
-        />
+      <DinamicIcon icons={weather} />
         <Text style={styles.location}>{weather.name}</Text>
         <Text style={styles.temp}>{Math.round(weather.main.temp)}°C</Text>
         <Text style={styles.location}>{weather.weather[0].main}</Text>
+        <Text style={styles.location}>{weather.weather[0].icon}</Text>
       </View>
       <FlatList
         data={forecast}
