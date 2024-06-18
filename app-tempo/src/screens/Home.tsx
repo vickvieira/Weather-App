@@ -13,6 +13,7 @@ import { BASE_URL, OPEN_WEATHER_KEY, UNSPLASH_ACCESS_KEY } from "../constants/Ap
 import { MainWeather, Weather, WeatherForecast } from "../constants/WeatherTypes";
 import DinamicIcon from "../components/DinamicIcon";
 import AdditionalInfo from "../components/AdditionalInfo";
+import { EvilIcons } from '@expo/vector-icons';
 
 
 const Home = () => {
@@ -25,7 +26,6 @@ const Home = () => {
   const [bgImage, setBgImage] = useState<string>();
   const [currentLocationImage, setCurrentLocationImage] = useState<string>();
 
-
   useEffect(() => {
     if (location) {
       fetchWeather();
@@ -37,7 +37,8 @@ const Home = () => {
     getLocation();
   }, []);
 
-  const getLocation = async () => { //para pegar a localização do dispositivo do usuário
+  const getLocation = async () => {
+    //para pegar a localização do dispositivo do usuário
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== "granted") {
       setErrorMsg("Permission to access location was denied");
@@ -64,14 +65,13 @@ const Home = () => {
           lat: location.coords.latitude,
           lon: location.coords.longitude,
           appid: OPEN_WEATHER_KEY,
-          lang: 'pt_br',
+          lang: "pt_br",
           units: "metric",
         },
       });
 
       setWeather(response.data);
       fetchCurrentLocationImage(response.data.name);
-    
     } catch (error) {
       console.error("Error fetching weather data:", error);
       setErrorMsg("Error fetching weather data");
@@ -88,7 +88,7 @@ const Home = () => {
           lat: location.coords.latitude,
           lon: location.coords.longitude,
           appid: OPEN_WEATHER_KEY,
-          lang: 'pt_br',
+          lang: "pt_br",
           units: "metric",
         },
       });
@@ -106,14 +106,13 @@ const Home = () => {
         params: {
           q: cityName,
           appid: OPEN_WEATHER_KEY,
-          lang: 'pt_br',
+          lang: "pt_br",
           units: "metric",
         },
       });
 
       setWeather(response.data);
       setBgImage(await fetchPhotoByCity(cityName));
-
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error("Error fetching weather data:", error.message);
@@ -153,17 +152,19 @@ const Home = () => {
     }
   };
 
-  
   const fetchCurrentLocationImage = async (cityName: string) => {
     try {
-      const response = await axios.get("https://api.unsplash.com/search/photos", {
-        params: {
-          query: cityName,
-          client_id: UNSPLASH_ACCESS_KEY,
-          per_page: 1,
-        },
-      });
-  
+      const response = await axios.get(
+        "https://api.unsplash.com/search/photos",
+        {
+          params: {
+            query: cityName,
+            client_id: UNSPLASH_ACCESS_KEY,
+            per_page: 1,
+          },
+        }
+      );
+
       if (response.data && response.data.results.length > 0) {
         setCurrentLocationImage(response.data.results[0].urls.regular);
       } else {
@@ -174,7 +175,7 @@ const Home = () => {
       Alert.alert("Erro", `Não foi possível encontrar a foto para ${cityName}`);
     }
   };
-  
+
   const fetchPhotoByCity = async (cityName: string) => {
     try {
       const response = await axios.get(
@@ -213,31 +214,45 @@ const Home = () => {
 
   const handleRefresh = () => {
     getLocation();
-    if (weather){
-        fetchCurrentLocationImage(weather.name);
+    if (weather) {
+      fetchCurrentLocationImage(weather.name);
     }
   };
-  
 
   if (!weather) {
     return <ActivityIndicator />;
   }
 
   return (
-    <ImageBackground source={{ uri: bgImage || currentLocationImage }} style={styles.backgroundImage}>
+    <ImageBackground
+      source={{ uri: bgImage || currentLocationImage }}
+      style={styles.backgroundImage}
+    >
       <View style={styles.overlay}>
-        <View style={styles.searchBar}>
-        <SearchBar onSearch={handleSearch} />
-        <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
-          <FontAwesome6 name="location-crosshairs" size={24} color="white" />
+        <TouchableOpacity
+        style={styles.drawer}>
+            <EvilIcons name="navicon" size={32} color="black" />
         </TouchableOpacity>
+        <View style={styles.searchBar}>
+          <SearchBar onSearch={handleSearch} />
+          <TouchableOpacity
+            style={styles.refreshButton}
+            onPress={handleRefresh}
+          >
+            <FontAwesome6 name="location-crosshairs" size={24} color="white" />
+          </TouchableOpacity>
         </View>
         <ScrollView>
           <View style={styles.contentContainer}>
             <DinamicIcon icons={weather} />
             <Text style={styles.location}>{weather.name}</Text>
-            <Text style={styles.temp}>{Math.round(weather.main.temp)}°<Text style={styles.celsius}>C</Text></Text>
-            <Text style={styles.weatherDescription}>{weather.weather[0].description}</Text>
+            <Text style={styles.temp}>
+              {Math.round(weather.main.temp)}°
+              <Text style={styles.celsius}>C</Text>
+            </Text>
+            <Text style={styles.weatherDescription}>
+              {weather.weather[0].description}
+            </Text>
             <FlatList
               data={forecast}
               horizontal
@@ -274,7 +289,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    paddingTop: 60,
+    paddingTop: 42,
   },
   location: {
     fontSize: 30,
@@ -318,6 +333,13 @@ const styles = StyleSheet.create({
   celsius: {
     fontSize: 50,
 
+  },
+  drawer: {
+    position: 'absolute',
+    margin: 15, 
+    marginTop: 45,
+    padding: 0,
+    
   }
 });
 

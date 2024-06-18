@@ -2,7 +2,9 @@ import * as React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { DrawerNavigationProp, createDrawerNavigator } from '@react-navigation/drawer';
 import Home from '../screens/Home';
-import Details from '../screens/Details';
+import Maps from '../screens/Maps';
+import { EvilIcons } from '@expo/vector-icons';
+import BlurView from 'expo-blur/build/BlurView';
 
 const Drawer = createDrawerNavigator();
 
@@ -16,9 +18,29 @@ export type DrawerTypes = DrawerNavigationProp<DrawerNavigation>;
 export default function DrawerComponent() {
   return (
     <NavigationContainer>
-      <Drawer.Navigator>
-        <Drawer.Screen options={{ headerShown: false}} name="Home" component={Home}/>
-        <Drawer.Screen name="Detalhes" component={Details}/>
+      <Drawer.Navigator
+      screenOptions={{
+        drawerStyle: {
+          backgroundColor: 'black',
+          width: 240,
+        },
+      }}
+      >
+        <Drawer.Screen
+          name="Home"
+          component={Home}
+          options={{ headerShown: false, drawerActiveBackgroundColor: 'white',
+            drawerInactiveBackgroundColor: 'white'
+           }}
+        />
+        <Drawer.Screen
+          name="Mapas"
+          component={Maps}
+          options={{ drawerActiveBackgroundColor: 'white',
+            drawerInactiveBackgroundColor: 'white', headerBackground: () => (
+              <BlurView tint="light" intensity={100} />
+            ),}}
+        />
         
       </Drawer.Navigator>
     </NavigationContainer>
