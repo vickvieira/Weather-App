@@ -5,6 +5,7 @@ import Home from '../screens/Home';
 import Maps from '../screens/Maps';
 import { EvilIcons } from '@expo/vector-icons';
 import BlurView from 'expo-blur/build/BlurView';
+import Login from '../screens/Login';
 
 const Drawer = createDrawerNavigator();
 
@@ -41,6 +42,18 @@ export default function DrawerComponent() {
               <BlurView tint="light" intensity={100} />
             ),}}
         />
+        <Drawer.Screen
+          name="Home"
+          component={Login}
+          options={{ headerShown: false, drawerActiveBackgroundColor: 'white',
+            drawerInactiveBackgroundColor: 'white'
+           }} />
+        <Drawer.Screen
+          name="Home"
+          component={Login}
+          options={{ headerShown: false, drawerActiveBackgroundColor: 'white',
+            drawerInactiveBackgroundColor: 'white'
+           }} />
         
       </Drawer.Navigator>
     </NavigationContainer>
