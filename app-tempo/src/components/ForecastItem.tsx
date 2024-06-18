@@ -37,6 +37,8 @@ const styles = StyleSheet.create({
     date: {
         fontWeight: 'bold', 
         fontSize: 16,
+        color: "gray",
+        borderColor: 'black',
     }
 
 })

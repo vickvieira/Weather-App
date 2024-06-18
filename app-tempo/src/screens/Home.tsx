@@ -1,5 +1,5 @@
-import { View, Text, ActivityIndicator, StyleSheet, ImageBackground, Alert, TouchableOpacity, ImageComponent } from "react-native";
-import React, { useEffect, useState } from "react";
+import { View, Text, ActivityIndicator, StyleSheet, ImageBackground, Alert, TouchableOpacity, ImageComponent, ScrollView } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 import Drawer, { DrawerTypes } from "../routes/Drawer";
 import * as Location from "expo-location";
@@ -12,6 +12,7 @@ import axios from "axios";
 import { BASE_URL, OPEN_WEATHER_KEY, UNSPLASH_ACCESS_KEY } from "../constants/ApiConstants";
 import { MainWeather, Weather, WeatherForecast } from "../constants/WeatherTypes";
 import DinamicIcon from "../components/DinamicIcon";
+import AdditionalInfo from "../components/AdditionalInfo";
 
 
 const Home = () => {
@@ -23,6 +24,7 @@ const Home = () => {
   const [city, setCity] = useState<string>("");
   const [bgImage, setBgImage] = useState<string>();
   const [currentLocationImage, setCurrentLocationImage] = useState<string>();
+
 
   useEffect(() => {
     if (location) {
@@ -62,6 +64,7 @@ const Home = () => {
           lat: location.coords.latitude,
           lon: location.coords.longitude,
           appid: OPEN_WEATHER_KEY,
+          lang: 'pt_br',
           units: "metric",
         },
       });
@@ -85,6 +88,7 @@ const Home = () => {
           lat: location.coords.latitude,
           lon: location.coords.longitude,
           appid: OPEN_WEATHER_KEY,
+          lang: 'pt_br',
           units: "metric",
         },
       });
@@ -102,6 +106,7 @@ const Home = () => {
         params: {
           q: cityName,
           appid: OPEN_WEATHER_KEY,
+          lang: 'pt_br',
           units: "metric",
         },
       });
@@ -211,83 +216,109 @@ const Home = () => {
     if (weather){
         fetchCurrentLocationImage(weather.name);
     }
-    
   };
+  
 
   if (!weather) {
     return <ActivityIndicator />;
   }
 
   return (
-    <ImageBackground source={{ uri: bgImage || currentLocationImage }} style={styles.container}>
-      <View
-        style={{
-          ...StyleSheet.absoluteFillObject,
-          backgroundColor: "rgba(0, 0, 0, 0.6)",
-        }}
-      />
-      <SearchBar onSearch={handleSearch} />
-      <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
-        <FontAwesome6 name="location-crosshairs" size={24} color="white" />
-      </TouchableOpacity>
-      <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <DinamicIcon icons={weather} />
-        <Text style={styles.location}>{weather.name}</Text>
-        <Text style={styles.temp}>{Math.round(weather.main.temp)}°C</Text>
-        <Text style={styles.location}>{weather.weather[0].main}</Text>
-        <Text style={styles.location}>{weather.weather[0].icon}</Text>
+    <ImageBackground source={{ uri: bgImage || currentLocationImage }} style={styles.backgroundImage}>
+      <View style={styles.overlay}>
+        <View style={styles.searchBar}>
+        <SearchBar onSearch={handleSearch} />
+        <TouchableOpacity style={styles.refreshButton} onPress={handleRefresh}>
+          <FontAwesome6 name="location-crosshairs" size={24} color="white" />
+        </TouchableOpacity>
+        </View>
+        <ScrollView>
+          <View style={styles.contentContainer}>
+            <DinamicIcon icons={weather} />
+            <Text style={styles.location}>{weather.name}</Text>
+            <Text style={styles.temp}>{Math.round(weather.main.temp)}°<Text style={styles.celsius}>C</Text></Text>
+            <Text style={styles.weatherDescription}>{weather.weather[0].description}</Text>
+            <FlatList
+              data={forecast}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={styles.forecastList}
+              contentContainerStyle={styles.forecastListContent}
+              renderItem={({ item }) => <ForecastItem forecast={item} />}
+              keyExtractor={(item) => item.dt.toString()}
+            />
+          </View>
+          <View style={styles.additionalInfoContainer}>
+            <AdditionalInfo additional={weather.main} />
+          </View>
+        </ScrollView>
       </View>
-      <FlatList
-        data={forecast}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={{
-          flexGrow: 0,
-          height: 150,
-          marginBottom: 40,
-        }}
-        contentContainerStyle={{
-          gap: 10,
-          paddingHorizontal: 10,
-        }}
-        renderItem={({ item }) => <ForecastItem forecast={item} />}
-      />
     </ImageBackground>
   );
 };
 
-{
-  /* //   {/* <Button title="Detalhes" onPress={() => {
-//             navigation.navigate("Detalhes")
-//         }} ></Button> */
-}
-
 const styles = StyleSheet.create({
-  container: {
+  backgroundImage: {
     flex: 1,
-    backgroundColor: "white",
+    resizeMode: "cover",
     justifyContent: "center",
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+  },
+  contentContainer: {
+    flex: 1,
     alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 60,
   },
   location: {
     fontSize: 30,
     color: "lightgray",
+    marginTop: 10,
   },
   temp: {
     fontSize: 90,
     color: "snow",
+    marginTop: 20,
+  },
+  weatherDescription: {
+    fontSize: 20,
+    color: "gray",
+    marginTop: 10,
   },
   refreshButton: {
     position: "absolute",
-    top: 40,
-    right: 20,
+    top: 110,
+    right: 32,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     padding: 10,
     borderRadius: 20,
-    marginTop: 70,
-    marginRight: 10,
-    alignContent: "stretch",
   },
+  forecastList: {
+    flexGrow: 0,
+    height: 150,
+    marginTop: 40,
+  },
+  forecastListContent: {
+    paddingHorizontal: 10,
+    gap: 10,
+  },
+  additionalInfoContainer: {
+    marginTop: 20,
+    alignItems: "center",
+  },
+  searchBar: {
+    paddingBottom: 40,
+  },
+  celsius: {
+    fontSize: 50,
+
+  }
 });
 
 export default Home;
