@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet } from "react-native";
-import { WeatherForecast } from "../screens/Home";
+import { WeatherForecast } from "../constants/WeatherTypes";
 import dayjs from "dayjs";
 import 'dayjs/locale/pt-br';
 import { BlurView } from 'expo-blur';
 dayjs.locale('pt-br');
+
 const ForecastItem = ({forecast}: {forecast:WeatherForecast}) => {
     return (
         <BlurView intensity={30} style={styles.container}>
@@ -36,6 +37,8 @@ const styles = StyleSheet.create({
     date: {
         fontWeight: 'bold', 
         fontSize: 16,
+        color: "gray",
+        borderColor: 'black',
     }
 
 })
