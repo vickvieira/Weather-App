@@ -1,6 +1,7 @@
 # Projeto de Desenvolvimento Mobile 
 ## Aplicativo de condições atuais e previsão do tempo
 Aplicativo desenvolvido para a disciplina de **Desenvolvimento *Mobile*** ministrada pelo prof. Roberson Cesar Alves de Araujo, do curso de Tecnologia em Análise e Desenvolvimento de Sistemas da Universidade Federal do Paraná (UFPR).
+**Alunos: Lucas Vinicius, Ruan Sergio Cunha Brito, Victoria Kunz Vieira**
 
 ### Tecnologias utilizadas
 Para o desenvolvimento do trabalho foram utilizadas as seguintes tecnologias:
