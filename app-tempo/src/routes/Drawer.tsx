@@ -43,13 +43,13 @@ export default function DrawerComponent() {
             ),}}
         />
         <Drawer.Screen
-          name="Home"
+          name="Cadastro"
           component={Login}
           options={{ headerShown: false, drawerActiveBackgroundColor: 'white',
             drawerInactiveBackgroundColor: 'white'
            }} />
         <Drawer.Screen
-          name="Home"
+          name="Login"
           component={Login}
           options={{ headerShown: false, drawerActiveBackgroundColor: 'white',
             drawerInactiveBackgroundColor: 'white'
